@@ -1,40 +1,47 @@
 import tkinter as tk
 import tkinter.messagebox
+import random
 
 # Initialize the board
 board = [" " for _ in range(9)]
 current_player = "X"
 game_over = False
 
+# Create the GUI
+root = tk.Tk()
+root.title("Tic-Tac-Toe")
+
 # Function to check for a win
-def check_win():
-    for i in range(0, 9, 3):
-        if board[i] == board[i + 1] == board[i + 2] != " ":
-            canvas.create_line(i * 100 + 50, 15, i * 100 + 50, 285, fill="red", width=5)
+def check_win(player):
+    winning_combinations = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8],  # Rows
+        [0, 3, 6], [1, 4, 7], [2, 5, 8],  # Columns
+        [0, 4, 8], [2, 4, 6]  # Diagonals
+    ]
+
+    for combo in winning_combinations:
+        if all(board[i] == player for i in combo):
+            draw_winning_line(combo)  # Draw the winning line
             return True
-    for i in range(3):
-        if board[i] == board[i + 3] == board[i + 6] != " ":
-            canvas.create_line(15, i * 100 + 50, 285, i * 100 + 50, fill="red", width=5)
-            return True
-    if board[0] == board[4] == board[8] != " ":
-        canvas.create_line(15, 15, 285, 285, fill="red", width=5)
-        return True
-    if board[2] == board[4] == board[6] != " ":
-        canvas.create_line(15, 285, 285, 15, fill="red", width=5)
-        return True
     return False
+
+# Function to draw the winning line
+def draw_winning_line(combo):
+    x1, y1 = (combo[0] % 3) * 100 + 50, (combo[0] // 3) * 100 + 50
+    x2, y2 = (combo[2] % 3) * 100 + 50, (combo[2] // 3) * 100 + 50
+    canvas.create_line(x1, y1, x2, y2, fill="red", width=5)
 
 # Function to check for a draw
 def check_draw():
     return " " not in board
 
- 
+# Function to handle player's move
 def player_move(index):
     global current_player, game_over
     if board[index] == " " and not game_over:
         board[index] = current_player
-        draw_move(index)
-        if check_win():
+        update_board()
+        if check_win(current_player):
             tk.messagebox.showinfo("Tic-Tac-Toe", f"Player {current_player} wins!")
             game_over = True
         elif check_draw():
@@ -44,55 +51,23 @@ def player_move(index):
             current_player = "O"
             ai_move()
 
- 
-def draw_move(index):
-    x, y = (index % 3) * 100 + 50, (index // 3) * 100 + 50
-    canvas.create_text(x, y, text=current_player, font=("Arial", 60))
+# Function to update the GUI with the current board state
+def update_board():
+    for i in range(9):
+        if board[i] != " ":
+            x, y = (i % 3) * 100 + 50, (i // 3) * 100 + 50
+            canvas.create_text(x, y, text=board[i], font=("Arial", 60))
 
- 
-def minimax(board, depth, maximizing_player):
-    if check_win():
-        return -1 if maximizing_player else 1
-    elif check_draw():
-        return 0
-
-    if maximizing_player:
-        max_eval = -float("inf")
-        for i in range(9):
-            if board[i] == " ":
-                board[i] = "O"
-                eval = minimax(board, depth + 1, False)
-                board[i] = " "
-                max_eval = max(max_eval, eval)
-        return max_eval
-    else:
-        min_eval = float("inf")
-        for i in range(9):
-            if board[i] == " ":
-                board[i] = "X"
-                eval = minimax(board, depth + 1, True)
-                board[i] = " "
-                min_eval = min(min_eval, eval)
-        return min_eval
-
- 
+# AI's move (randomly selects an empty cell)
 def ai_move():
-    global current_player
+    global current_player, game_over
     if not game_over:
-        best_move = None
-        best_eval = -float("inf")
-        for i in range(9):
-            if board[i] == " ":
-                board[i] = "O"
-                move_eval = minimax(board, 0, False)
-                board[i] = " "
-                if move_eval > best_eval:
-                    best_eval = move_eval
-                    best_move = i
-        if best_move is not None:
-            board[best_move] = "O"
-            draw_move(best_move)
-            if check_win():
+        empty_cells = [i for i in range(9) if board[i] == " "]
+        if empty_cells:
+            ai_choice = random.choice(empty_cells)
+            board[ai_choice] = "O"
+            update_board()
+            if check_win("O"):
                 tk.messagebox.showinfo("Tic-Tac-Toe", "AI wins!")
                 game_over = True
             elif check_draw():
@@ -100,10 +75,8 @@ def ai_move():
                 game_over = True
             else:
                 current_player = "X"
- 
-root = tk.Tk()
-root.title("Tic-Tac-Toe")
 
+# Create the game board
 canvas = tk.Canvas(root, width=300, height=300, bg="white")
 canvas.pack()
 
