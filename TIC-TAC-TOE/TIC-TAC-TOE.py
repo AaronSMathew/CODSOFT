@@ -11,12 +11,18 @@ game_over = False
 root = tk.Tk()
 root.title("Tic-Tac-Toe")
 
+
 # Function to check for a win
 def check_win(player):
     winning_combinations = [
-        [0, 1, 2], [3, 4, 5], [6, 7, 8],  # Rows
-        [0, 3, 6], [1, 4, 7], [2, 5, 8],  # Columns
-        [0, 4, 8], [2, 4, 6]  # Diagonals
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],  # Rows
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],  # Columns
+        [0, 4, 8],
+        [2, 4, 6],  # Diagonals
     ]
 
     for combo in winning_combinations:
@@ -25,15 +31,18 @@ def check_win(player):
             return True
     return False
 
+
 # Function to draw the winning line
 def draw_winning_line(combo):
     x1, y1 = (combo[0] % 3) * 100 + 50, (combo[0] // 3) * 100 + 50
     x2, y2 = (combo[2] % 3) * 100 + 50, (combo[2] // 3) * 100 + 50
     canvas.create_line(x1, y1, x2, y2, fill="red", width=5)
 
+
 # Function to check for a draw
 def check_draw():
     return " " not in board
+
 
 # Function to handle player's move
 def player_move(index):
@@ -51,12 +60,14 @@ def player_move(index):
             current_player = "O"
             ai_move()
 
+
 # Function to update the GUI with the current board state
 def update_board():
     for i in range(9):
         if board[i] != " ":
             x, y = (i % 3) * 100 + 50, (i // 3) * 100 + 50
             canvas.create_text(x, y, text=board[i], font=("Arial", 60))
+
 
 # AI's move (randomly selects an empty cell)
 def ai_move():
@@ -76,6 +87,7 @@ def ai_move():
             else:
                 current_player = "X"
 
+
 # Create the game board
 canvas = tk.Canvas(root, width=300, height=300, bg="white")
 canvas.pack()
@@ -85,7 +97,9 @@ canvas.create_line(200, 0, 200, 300, fill="black", width=3)
 canvas.create_line(0, 100, 300, 100, fill="black", width=3)
 canvas.create_line(0, 200, 300, 200, fill="black", width=3)
 
-canvas.bind("<Button-1>", lambda event: player_move((event.y // 100) * 3 + (event.x // 100)))
+canvas.bind(
+    "<Button-1>", lambda event: player_move((event.y // 100) * 3 + (event.x // 100))
+)
 
 # Start the game
 root.mainloop()
